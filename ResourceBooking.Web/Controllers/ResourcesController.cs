@@ -145,6 +145,8 @@ namespace ResourceBooking.Web.Controllers
             return View(dto);
         }
 
+
+
         // POST: Resources/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -186,7 +188,7 @@ namespace ResourceBooking.Web.Controllers
             };
         }
 
- 
+        
      
 
         

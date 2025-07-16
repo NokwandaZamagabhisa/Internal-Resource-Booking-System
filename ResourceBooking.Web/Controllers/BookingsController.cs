@@ -79,6 +79,8 @@ namespace ResourceBooking.Web.Controllers
             ViewData["ResourceId"] = resourceId; // Pass ResourceId for view context
             return Ok(dtoList);
         }
+
+
     }
 
 
