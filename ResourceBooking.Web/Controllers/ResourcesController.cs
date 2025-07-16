@@ -45,6 +45,24 @@ namespace ResourceBooking.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Resources/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var resource = await _resourceGateway.GetById(id.Value);
+            if (resource == null)
+            {
+                return NotFound();
+            }
+
+            var dto = MapResourceToDto(resource);
+            return View(dto);
+        }
+
 
         // GET: Resources
         public async Task<IActionResult> Index()
