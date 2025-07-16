@@ -63,6 +63,69 @@ namespace ResourceBooking.Web.Controllers
             return View(dto);
         }
 
+        // GET: Resources/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var resource = await _resourceGateway.GetById(id.Value);
+            if (resource == null)
+            {
+                return NotFound();
+            }
+            var dto = MapResourceToDto(resource);
+            return View(dto);
+        }
+
+        // POST: Resources/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ResourceDto dto)
+        {
+            if (id != dto.Id)
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+
+
+            }
+
+            var entity = await _resourceGateway.GetById(id);
+            if (entity == null) return NotFound();
+
+            entity.Name = dto.Name;
+            entity.Description = dto.Description;
+            entity.Location = dto.Location;
+            entity.IsAvailable = dto.IsAvailable;
+            entity.Capacity = dto.Capacity;
+
+            try
+            {
+                await _resourceGateway.Update(entity);
+
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await ResourceExistsAsync(dto.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
 
         // GET: Resources
         public async Task<IActionResult> Index()
