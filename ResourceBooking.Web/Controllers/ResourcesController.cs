@@ -126,6 +126,44 @@ namespace ResourceBooking.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Resources/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var resource = await _resourceGateway.GetById(id.Value);
+            if (resource == null)
+            {
+                return NotFound();
+            }
+
+            var dto = MapResourceToDto(resource);
+
+            return View(dto);
+        }
+
+        // POST: Resources/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var resource = await _resourceGateway.GetById(id);
+            if (resource != null)
+            {
+                await _resourceGateway.Delete(id);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<bool> ResourceExistsAsync(int id)
+        {
+            return await _resourceGateway.Exists(id);
+        }
+
 
         // GET: Resources
         public async Task<IActionResult> Index()
