@@ -15,6 +15,37 @@ namespace ResourceBooking.Web.Controllers
             _resourceGateway = resourceGateway;
         }
 
+        // GET: Resources/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Resources/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ResourceDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+            var entity = new Resource
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                Location = dto.Location,
+                IsAvailable = dto.IsAvailable,
+                Capacity = dto.Capacity
+            };
+            await _resourceGateway.Add(entity);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
         // GET: Resources
         public async Task<IActionResult> Index()
         {
