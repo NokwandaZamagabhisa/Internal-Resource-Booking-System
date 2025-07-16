@@ -80,6 +80,54 @@ namespace ResourceBooking.Web.Controllers
             return Ok(dtoList);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create(BookingDto dto)
+        {
+            var validationResult = BookingDto.ValidateBooking(dto, new ValidationContext(dto));
+            if (validationResult != null)
+            {
+                ModelState.AddModelError("", validationResult.ErrorMessage);
+                //Can create method for this repeated code
+                var resources = await _resourceGateway.GetAll();
+                ViewData["ResourceId"] = new SelectList(resources, "Id", "Description", dto.ResourceId);
+                return View(dto);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                //Can create method for this repeated code
+                var resourcesForError = await _resourceGateway.GetAll();
+                ViewData["ResourceId"] = new SelectList(resourcesForError, "Id", "Description", dto.ResourceId);
+                return View(dto);
+
+            }
+
+            var conflictingBookings = await _bookingGateway.GetConflictingBookings(dto.ResourceId, dto.StartTime, dto.EndTime);
+            if (conflictingBookings.Any())
+            {
+                ModelState.AddModelError("", "This resource is already booked during the requested time. Please choose another slot or resource, or adjust your times.");
+
+                //Can create method for this repeated code
+                var resources = await _resourceGateway.GetAll();
+                ViewData["ResourceId"] = new SelectList(resources, "Id", "Description", dto.ResourceId);
+                return View(dto);
+
+            }
+
+            var booking = new Booking
+            {
+                ResourceId = dto.ResourceId,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
+                BookedBy = dto.BookedBy,
+                Purpose = dto.Purpose
+            };
+
+            await _bookingGateway.Add(booking);
+            return RedirectToAction(nameof(Index));
+        }
+
+
 
     }
 
